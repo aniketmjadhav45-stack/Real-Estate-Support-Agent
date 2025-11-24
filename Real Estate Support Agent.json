@@ -1,0 +1,673 @@
+{
+  "name": "Real Estate Support Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -160,
+        64
+      ],
+      "id": "c3f7b562-6339-418a-9cbf-0558f0ac408c",
+      "name": "When chat message received",
+      "webhookId": "6ebeb031-50ae-42b3-a822-fa7a01266a8f"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "18649a00-00b4-4500-abf9-ff0e261bf081",
+              "leftValue": "={{ $json.chatInput }}",
+              "rightValue": "apex",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        64,
+        64
+      ],
+      "id": "3c19453b-1853-4318-920c-9d7f12b3613e",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "Role\n\nYou are a helpful, charming real estate assistant who answers property questions for clients. Use the \"Property Q&A\" tool to answer all questions users have about properties, listing agents, and availability-never deliver information from other sources.\n\nTools\n\nUse the \"Property Q&A\" tool to retrieve info on property info & listing agents to answer users' questions. Gather the record's data corresponding to the user's question and summarize it in a concise reply.\n\n- If the user expresses interest in a property, ask for their name and email. Then, use the \"Notify an Agent\" tool to send the agent an email summarizing the following: the property they want to see, their name, and email so the agent can follow up.\n\n- Use the calculator tool if the user asks for any numerical calculations"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        600,
+        264
+      ],
+      "id": "88486b5c-f3bd-47af-8c27-52cfdaf101dd",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        416,
+        488
+      ],
+      "id": "4e39c798-b6f3-4975-bbf9-08c1811c9593",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "DQP6CIQ2Va6zksr6",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        544,
+        488
+      ],
+      "id": "5d5e4bad-3b3d-4132-bc10-8a58c989abfd",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "base": {
+          "__rl": true,
+          "value": "appmuUAwWJLngOE9U",
+          "mode": "list",
+          "cachedResultName": "Property Info",
+          "cachedResultUrl": "https://airtable.com/appmuUAwWJLngOE9U"
+        },
+        "table": {
+          "__rl": true,
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Table', ``, 'string') }}",
+          "mode": "id"
+        },
+        "id": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Record_ID', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtableTool",
+      "typeVersion": 2.1,
+      "position": [
+        672,
+        488
+      ],
+      "id": "7ccfdbdc-f2bf-4ddd-aa4a-5b0a93c4fdf4",
+      "name": "Get a record in Airtable",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "l3MDU8Nf0kHWYrFp",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('To', ``, 'string') }}",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+        "emailType": "text",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        800,
+        488
+      ],
+      "id": "ba06ea46-0c6b-4f95-92cc-da47aeb02ffb",
+      "name": "Send a message in Gmail",
+      "webhookId": "2ce9dd55-8073-4a28-90fb-c9006f5f7501",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ltbhsxLR6fb9JS7l",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "typeVersion": 1,
+      "position": [
+        928,
+        488
+      ],
+      "id": "8fca3a1c-1375-4e49-8ec3-4bbbaf728cad",
+      "name": "Calculator"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "Role\n\nYou are an internal facing real estate assistant designed to help real estate agents with various daily tasks. Use have access to 4 tools. Always respond to the user when you're finished to confirm that the task is done.\n\nFor reference, today is ({ Snow >>.\n\nTools\n\nUse the \"Update Database\" tool to update the real estate base with one record containing the given information.\n\nUse the \"Book a Meeting tool to set an event at the given time. All events are 1 hour.\n\nUse the \"Client Search\" tool to find information (interests, budget, email) for a given client by name. Respond to the user with the requested info.\n\nUse the \"Draft a Message\" tool to compose a message to the given recipient containing the given content. Always use a concise yet friendly tone.\n\n-Use the calculator for accurate calculations"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        600,
+        -240
+      ],
+      "id": "d87fe08d-f9fa-4c75-82df-2cbe447f4ef0",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        288,
+        -16
+      ],
+      "id": "6c89f191-e164-4a89-94da-073fa25160da",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "DQP6CIQ2Va6zksr6",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        416,
+        -16
+      ],
+      "id": "fe22e028-f188-4a92-9773-d7f4578ed33e",
+      "name": "Simple Memory1"
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "aniketmjadhav45@gmail.com",
+          "mode": "list",
+          "cachedResultName": "aniketmjadhav45@gmail.com"
+        },
+        "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', ``, 'string') }}",
+        "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', ``, 'string') }}",
+        "useDefaultReminders": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Use_Default_Reminders', ``, 'boolean') }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        544,
+        -16
+      ],
+      "id": "89e426ed-f8e8-4566-8dda-caca626102f1",
+      "name": "Create an event in Google Calendar",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "izEjgjRsuY2vYUDW",
+          "name": "Google Calendar account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "base": {
+          "__rl": true,
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Base', ``, 'string') }}",
+          "mode": "id"
+        },
+        "table": {
+          "__rl": true,
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Table', ``, 'string') }}",
+          "mode": "id"
+        },
+        "id": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Record_ID', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtableTool",
+      "typeVersion": 2.1,
+      "position": [
+        672,
+        -16
+      ],
+      "id": "eb32e2d8-454b-44dd-a758-4e88a4af39a7",
+      "name": "Get a record in Airtable1",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "l3MDU8Nf0kHWYrFp",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "typeVersion": 1,
+      "position": [
+        800,
+        -16
+      ],
+      "id": "c154a859-9607-4e0a-9b78-113a9c7c1289",
+      "name": "Calculator1"
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        928,
+        -16
+      ],
+      "id": "4add7337-e391-4ce5-98d6-a7bdd2e07407",
+      "name": "Create a draft in Gmail",
+      "webhookId": "b7848201-9c5b-4eb8-95c0-89d6121e2b0e",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ltbhsxLR6fb9JS7l",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appZ7xkYcbLCNxIFr",
+          "mode": "list",
+          "cachedResultName": "Property Info",
+          "cachedResultUrl": "https://airtable.com/appZ7xkYcbLCNxIFr"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblFC8kz6PV32cOBl",
+          "mode": "list",
+          "cachedResultName": "Imported table",
+          "cachedResultUrl": "https://airtable.com/appZ7xkYcbLCNxIFr/tblFC8kz6PV32cOBl"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {
+            "Property Info": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Property_Info', ``, 'string') }}",
+            "Property Address": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Property_Address', ``, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Listing Agent Name",
+              "displayName": "Listing Agent Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Property Address",
+              "displayName": "Property Address",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "options": [
+                {
+                  "name": "123 MG Road",
+                  "value": "123 MG Road"
+                },
+                {
+                  "name": "Mumbai",
+                  "value": "Mumbai"
+                },
+                {
+                  "name": "45 Palm Street",
+                  "value": "45 Palm Street"
+                },
+                {
+                  "name": "Delhi",
+                  "value": "Delhi"
+                },
+                {
+                  "name": "78 Park Avenue",
+                  "value": "78 Park Avenue"
+                },
+                {
+                  "name": "Bangalore",
+                  "value": "Bangalore"
+                },
+                {
+                  "name": "21 Lake View",
+                  "value": "21 Lake View"
+                },
+                {
+                  "name": "Hyderabad",
+                  "value": "Hyderabad"
+                },
+                {
+                  "name": "10 Rosewood",
+                  "value": "10 Rosewood"
+                },
+                {
+                  "name": "Pune",
+                  "value": "Pune"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Property Info",
+              "displayName": "Property Info",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "options": [
+                {
+                  "name": "3 BHK",
+                  "value": "3 BHK"
+                },
+                {
+                  "name": "1500 sqft",
+                  "value": "1500 sqft"
+                },
+                {
+                  "name": "2 Bathrooms",
+                  "value": "2 Bathrooms"
+                },
+                {
+                  "name": "2 BHK",
+                  "value": "2 BHK"
+                },
+                {
+                  "name": "1100 sqft",
+                  "value": "1100 sqft"
+                },
+                {
+                  "name": "1 Bathroom",
+                  "value": "1 Bathroom"
+                },
+                {
+                  "name": "4 BHK",
+                  "value": "4 BHK"
+                },
+                {
+                  "name": "2000 sqft",
+                  "value": "2000 sqft"
+                },
+                {
+                  "name": "3 Bathrooms",
+                  "value": "3 Bathrooms"
+                },
+                {
+                  "name": "1600 sqft",
+                  "value": "1600 sqft"
+                },
+                {
+                  "name": "Pool",
+                  "value": "Pool"
+                },
+                {
+                  "name": "1200 sqft",
+                  "value": "1200 sqft"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Available",
+                  "value": "Available"
+                },
+                {
+                  "name": "Under Contract",
+                  "value": "Under Contract"
+                },
+                {
+                  "name": "Sold",
+                  "value": "Sold"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtableTool",
+      "typeVersion": 2.1,
+      "position": [
+        1056,
+        -16
+      ],
+      "id": "c84c85b4-a07c-42d7-9672-06e01d4e6249",
+      "name": "Create a record in Airtable",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "l3MDU8Nf0kHWYrFp",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a record in Airtable": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message in Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculator": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create an event in Google Calendar": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a record in Airtable1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculator1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a draft in Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a record in Airtable": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "25313261-d3e2-457d-8914-71e503a9c91c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "2cdf95ec4de3cb6f456eb3fa158a46dc41da9eb3206d2c3476e001d7117af89a"
+  },
+  "id": "iaoBj9cCbOpzZmbG",
+  "tags": []
+}
